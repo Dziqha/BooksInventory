@@ -1,0 +1,125 @@
+- migrate create  -ext sql -dir penyimpanan nama tabel
+- migrate -database "mysql://root@tcp(localhost:3306)/bookinventory_migration" -path db/migrations up (ini brarti semua)
+- migrate -database "mysql://root@tcp(localhost:3306)/bookinventory_migration" -path db/migrations down (ini brarti semua)
+- migrate -database "mysql://root@tcp(localhost:3306)/bookinventory_migration" -path db/migrations version
+- migrate -database "mysql://root@tcp(localhost:3306)/bookinventory_migration" -path db/migrations force (version sebelumnya yang berhasil)
+package controllers
+
+import (
+	"BooksInventory/src/models"
+	"BooksInventory/src/services"
+	"strconv"
+
+	"github.com/go-playground/validator/v10"
+	"github.com/gofiber/fiber/v2"
+)
+
+type BooksController struct {
+	BooksService services.BooksService
+	Validate *validator.Validate
+}
+
+func NewBooksController(booksService services.BooksService, validate *validator.Validate) *BooksController {
+	return &BooksController{
+		BooksService: booksService,
+		Validate: validate,
+	}
+}
+
+func (controller *BooksController) Add(c *fiber.Ctx) error {
+	var req models.BooksRequestCreate
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(models.ResponseCode{
+			Code:    fiber.StatusBadRequest,
+			Message: "Invalid request body",
+			Data:    nil,
+		})
+	}
+
+	if err := controller.Validate.Struct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(models.ResponseCode{
+			Code:    fiber.StatusBadRequest,
+			Message: "Validation failed: " + err.Error(),
+			Data:    nil,
+		})
+	}
+
+	res := controller.BooksService.Add(c.Context(), req)
+	return c.JSON(models.ResponseCode{
+		Code:    fiber.StatusOK,
+		Message: "Book added successfully",
+		Data:    res,
+	})
+}
+
+
+func (controller *BooksController) Update(c *fiber.Ctx) error {
+	id, _ := strconv.Atoi(c.Params("id"))
+	var req models.BooksRequestUpdate
+	req.Id = id
+
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(models.ResponseCode{
+			Code:    fiber.StatusBadRequest,
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+
+	res := controller.BooksService.Update(c.Context(), req)
+	return c.JSON(models.ResponseCode{
+		Code:    fiber.StatusOK,
+		Message: "Book updated successfully",
+		Data:    res,
+	})
+}
+
+func (controller *BooksController) FindAll(c *fiber.Ctx) error {
+	res := controller.BooksService.FindAll(c.Context())
+	if res == nil {
+		return c.Status(fiber.StatusNotFound).JSON(models.ResponseCode{
+			Code:    fiber.StatusNotFound,
+			Message: "Books not found ",
+			Data:    nil,
+		})
+	}
+	return c.JSON(models.ResponseCode{
+		Code:    fiber.StatusOK,
+		Message: "Books retrieved successfully",
+		Data:    res,
+	})
+}
+
+func (controller *BooksController) FindById(c *fiber.Ctx) error {
+	id, _ := strconv.Atoi(c.Params("id"))
+	res, err := controller.BooksService.FindById(c.Context(), id)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(models.ResponseCode{
+			Code:    fiber.StatusNotFound,
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+	return c.JSON(models.ResponseCode{
+		Code:    fiber.StatusOK,
+		Message: "Book found",
+		Data:    res,
+	})
+}
+
+func (controller *BooksController) Delete(c *fiber.Ctx) error {
+	id, _ := strconv.Atoi(c.Params("id"))
+	err := controller.BooksService.Delete(c.Context(), id)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(models.ResponseCode{
+			Code:    fiber.StatusNotFound,
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+	return c.JSON(models.ResponseCode{
+		Code:    fiber.StatusNoContent,
+		Message: "Book deleted successfully",
+		Data:    nil,
+	})
+}
