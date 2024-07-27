@@ -12,7 +12,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
-	_ "github.com/joho/godotenv/autoload" // Automatically loads .env
+	_ "github.com/joho/godotenv/autoload" 
 )
 
 type BooksController struct {
@@ -49,7 +49,6 @@ func (controller *BooksController) Add(c *fiber.Ctx) error {
 
     res := controller.BooksService.Add(c.Context(), req)
 
-    // Clear the cache for books list after adding a new book
     cacheKey := os.Getenv("CACHE_KEY_BOOKS_ALL")
     controller.RedisClient.Del(c.Context(), cacheKey)
 
@@ -75,11 +74,9 @@ func (controller *BooksController) Update(c *fiber.Ctx) error {
 
     res := controller.BooksService.Update(c.Context(), req)
 
-    // Clear the cache for the specific book after updating
     cacheKey := os.Getenv("CACHE_KEY_BOOKS_PREFIX") + strconv.Itoa(id)
     controller.RedisClient.Del(c.Context(), cacheKey)
 
-    // Clear the cache for books list after updating
     controller.RedisClient.Del(c.Context(), os.Getenv("CACHE_KEY_BOOKS_ALL"))
 
     return c.JSON(models.ResponseCode{
@@ -141,7 +138,6 @@ func (controller *BooksController) FindAll(c *fiber.Ctx) error {
         })
     }
 
-    // Increase cache expiry time to reduce database hits
     err = controller.RedisClient.Set(c.Context(), cacheKey, resJSON, 5 * time.Minute).Err()
     if err != nil {
         return c.Status(fiber.StatusInternalServerError).JSON(models.ResponseCode{
@@ -240,11 +236,9 @@ func (controller *BooksController) Delete(c *fiber.Ctx) error {
         })
     }
 
-    // Clear the cache for the specific book
     cacheKey := os.Getenv("CACHE_KEY_BOOKS_PREFIX") + strconv.Itoa(id)
     controller.RedisClient.Del(c.Context(), cacheKey)
 
-    // Clear the cache for books list after deleting a book
     controller.RedisClient.Del(c.Context(), os.Getenv("CACHE_KEY_BOOKS_ALL"))
 
     return c.JSON(models.ResponseCode{

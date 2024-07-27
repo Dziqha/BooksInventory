@@ -43,7 +43,6 @@ func (service *BooksService) Update(ctx context.Context, req models.BooksRequest
 		return res
 	}
 
-	// Gunakan nilai yang ada jika tidak ada input baru
 	if req.Title == "" {
 		req.Title = res.Title
 	}
@@ -57,7 +56,6 @@ func (service *BooksService) Update(ctx context.Context, req models.BooksRequest
 		req.Amoutnt = res.Amount
 	}
 
-	// Perbarui data
 	queryUpdate := `UPDATE books SET title = ?, author = ?, isbn = ?, amount = ? WHERE id = ?`
 	_, err = service.DB.ExecContext(ctx, queryUpdate, req.Title, req.Author, req.ISBN, req.Amoutnt, req.Id)
 	if err != nil {
@@ -65,7 +63,6 @@ func (service *BooksService) Update(ctx context.Context, req models.BooksRequest
 		return res
 	}
 
-	// Set nilai res untuk mengembalikan data yang telah diperbarui
 	res.Id = req.Id
 	res.Title = req.Title
 	res.Author = req.Author
