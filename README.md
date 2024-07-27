@@ -13,6 +13,7 @@ BooksInventory adalah aplikasi manajemen inventaris buku yang dibangun menggunak
 ## Persyaratan
 
 - Go 1.16 atau lebih baru
+- Air (untuk hot-reload)
 - Redis
 - MySQL
 - Git
@@ -22,7 +23,8 @@ BooksInventory adalah aplikasi manajemen inventaris buku yang dibangun menggunak
 1. **Clone repository ini:**
 
    ```bash
-   git clone https://github.com/your-username/BooksInventory.git
+   git clone https://github.com/Dziqha/BooksInventory.git
+
    cd BooksInventory
    ```
 
@@ -32,7 +34,16 @@ BooksInventory adalah aplikasi manajemen inventaris buku yang dibangun menggunak
    go mod tidy
    ```
 
-3. **Buat file `.env` di root project:**
+3. **Install Air (hot-reload tool):**
+
+   ```bash
+   go install github.com/cosmtrek/air@latest
+   ```
+
+   Pastikan $GOPATH/bin ada di dalam $PATH untuk menjalankan air.
+
+
+4. **Buat file `.env` di root project:**
 
    Isi file `.env` dengan konfigurasi berikut:
 
@@ -45,10 +56,10 @@ BooksInventory adalah aplikasi manajemen inventaris buku yang dibangun menggunak
    MYSQL_PORT=3306
    ```
 
-4. **Jalankan aplikasi:**
+5. **Jalankan aplikasi:**
 
    ```bash
-   go run main.go
+   air
    ```
 
    Aplikasi akan berjalan pada `localhost:3000`.
@@ -59,10 +70,10 @@ API ini menyediakan beberapa endpoint untuk mengelola buku. Gunakan alat seperti
 
 Contoh endpoint:
 
-- **GET /books**: Mendapatkan daftar buku
-- **POST /books**: Menambahkan buku baru
-- **PUT /books/:id**: Memperbarui informasi buku
-- **DELETE /books/:id**: Menghapus buku
+- **GET /api/v1/books**: Mendapatkan daftar buku
+- **POST /api/v1/books**: Menambahkan buku baru
+- **PUT /api/v1/books/:id**: Memperbarui informasi buku
+- **DELETE /api/v1/books/:id**: Menghapus buku
 
 ## Strukur Direktori
 
@@ -71,6 +82,7 @@ Contoh endpoint:
 - `src/services/`: Logika utama untuk memanipulasi data.
 - `src/routers/`: Definisi routing API.
 - `src/middleware/`: Middleware khusus.
+- `tmp/`: Informasi log atau debug dari fitur hot-reloading.
 
 ## Kontribusi
 
