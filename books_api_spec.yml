@@ -1,0 +1,218 @@
+openapi: 3.0.0
+info:
+  title: Books Inventory API
+  description: API untuk mengelola inventaris buku, termasuk operasi CRUD untuk buku.
+  version: 1.0.0
+  contact:
+    name: Haadziq
+    email: abdurrohmanhaadziq@gmail.com
+    url: https://haadziq.my.id
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: http://localhost:3000
+    description: Server lokal
+paths:
+  /books:
+    get:
+      summary: Get all books
+      description: Mengambil daftar semua buku yang ada di inventaris
+      tags:
+        - books
+      security:
+        - apiKeyAuth: []
+      responses:
+        "200":
+          description: Daftar buku berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    title:
+                      type: string
+                      example: "Harry Potter and the Philosopher's Stone"
+                    author:
+                      type: string
+                      example: "J.K. Rowling"
+                    amount:
+                      type: integer
+                      example: 10
+    post:
+      summary: Add a new book
+      description: Menambahkan buku baru ke dalam inventaris
+      tags:
+        - books
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - author
+                - isbn
+                - amount
+              properties:
+                title:
+                  type: string
+                  example: "The Hobbit"
+                author:
+                  type: string
+                  example: "J.R.R. Tolkien"
+                isbn:
+                  type: string
+                  example: "978-0-261-10221-8"
+                amount:
+                  type: integer
+                  example: 5
+      responses:
+        "201":
+          description: Buku berhasil ditambahkan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 2
+                  title:
+                    type: string
+                    example: "The Hobbit"
+                  author:
+                    type: string
+                    example: "J.R.R. Tolkien"
+                  isbn:
+                    type: string
+                    example: "978-0-261-10221-8"
+                  amount:
+                    type: integer
+                    example: 5
+  /books/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          example: 1
+    get:
+      summary: Get a book by ID
+      description: Mengambil detail buku berdasarkan ID
+      tags:
+        - books
+      security:
+        - apiKeyAuth: []
+      responses:
+        "200":
+          description: Detail buku berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  title:
+                    type: string
+                    example: "Harry Potter and the Philosopher's Stone"
+                  author:
+                    type: string
+                    example: "J.K. Rowling"
+                  isbn:
+                    type: string
+                    example: "978-0-7475-3274-5"
+                  amount:
+                    type: integer
+                    example: 10
+        "404":
+          description: Buku tidak ditemukan
+    put:
+      summary: Update a book
+      description: Memperbarui informasi buku berdasarkan ID
+      tags:
+        - books
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - title
+                - author
+                - isbn
+                - amount
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                title:
+                  type: string
+                  example: "Harry Potter and the Chamber of Secrets"
+                author:
+                  type: string
+                  example: "J.K. Rowling"
+                isbn:
+                  type: string
+                  example: "978-0-7475-3849-4"
+                amount:
+                  type: integer
+                  example: 12
+      responses:
+        "200":
+          description: Buku berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  title:
+                    type: string
+                    example: "Harry Potter and the Chamber of Secrets"
+                  author:
+                    type: string
+                    example: "J.K. Rowling"
+                  isbn:
+                    type: string
+                    example: "978-0-7475-3849-4"
+                  amount:
+                    type: integer
+                    example: 12
+        "404":
+          description: Buku tidak ditemukan
+    delete:
+      summary: Delete a book
+      description: Menghapus buku berdasarkan ID
+      tags:
+        - books
+      security:
+        - apiKeyAuth: []
+      responses:
+        "204":
+          description: Buku berhasil dihapus
+        "404":
+          description: Buku tidak ditemukan
+components:
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
